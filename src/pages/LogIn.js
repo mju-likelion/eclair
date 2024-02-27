@@ -1,3 +1,4 @@
+import styled from 'styled-components';
 import { Axios } from '../api/Axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -32,11 +33,29 @@ const LogIn = () => {
   return (
     <form onSubmit={handleFormSubmit}>
       로그인
-      <input value={managerId} onChange={(e) => setManagerId(e.target.value)} />
-      <input value={password} onChange={(e) => setPassword(e.target.value)} />
+      <IdInput
+        value={managerId}
+        onChange={(e) => setManagerId(e.target.value)}
+      />
+      <PasswordInput
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
       <button type="submit">로그인</button>
     </form>
   );
 };
+
+const IdInput = styled.input`
+  display: block;
+  border: 1px solid #db627b;
+  border-radius: 8px;
+`;
+
+const PasswordInput = styled.input`
+  display: block;
+  border: 1px solid #db627b;
+  border-radius: 8px;
+`;
 
 export default LogIn;
