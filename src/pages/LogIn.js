@@ -10,16 +10,19 @@ const LogIn = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    console.log({ managerId, password });
-    try {
-      const response = await Axios.post('/auth/login', {
-        managerId: managerId,
-        password: password,
-      });
 
-      console.log(response);
+    try {
+      const response = await Axios.post(
+        '/auth/login',
+        {
+          managerId: managerId,
+          password: password,
+        },
+        { withCredentials: true },
+      );
+
       const statusCode = response.data.statusCode;
-      console.log(statusCode);
+
       if (statusCode === '200') {
         console.log(statusCode);
         navigate('/');
