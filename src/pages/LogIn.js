@@ -34,11 +34,11 @@ const LogIn = () => {
     <Container>
       <Form onSubmit={handleFormSubmit}>
         <SubTitle>로그인</SubTitle>
-        <IdInput
+        <LoginInput
           value={managerId}
           onChange={(e) => setManagerId(e.target.value)}
         />
-        <PasswordInput
+        <LoginInput
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -70,17 +70,7 @@ const SubTitle = styled.div`
   font-size: 24px;
 `;
 
-const IdInput = styled.input`
-  display: block;
-  border: 1px solid #db627b;
-  border-radius: 8px;
-  width: 200px;
-  height: 30px;
-  background-color: transparent;
-  color: white;
-`;
-
-const PasswordInput = styled.input`
+const LoginInput = styled.input`
   display: block;
   border: 1px solid #db627b;
   border-radius: 8px;
