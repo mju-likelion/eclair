@@ -1,17 +1,17 @@
+import styled from 'styled-components';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { postLogin } from '../api/postLogin';
 import { getApplication } from '../api/getApplication';
-import MAIN_DUMMY from '../MainDummy.json';
-import styled from 'styled-components';
 
 const Main = () => {
-  const [applicationData, setApplicationData] = useState(false);
+  const navigate = useNavigate();
+
+  const [applicationData, setApplicationData] = useState([]);
+  const [titleList, setTitleList] = useState([]);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [currentPart, setCurrentPart] = useState('web');
   const [currentPageNumber, setcurrentPageNumber] = useState(1);
-
-  const data = MAIN_DUMMY.applications;
-  const titleList = Object.keys(data[0]);
 
   function renderButtons(totalPageNumber) {
     const buttons = [];
@@ -23,7 +23,7 @@ const Main = () => {
           $currentPageNumber={currentPageNumber}
           onClick={() => setcurrentPageNumber(i + 1)}
         >
-          Button {i + 1}
+          {i + 1}
         </PageButton>,
       );
     }
@@ -47,10 +47,11 @@ const Main = () => {
           currentPageNumber,
         );
         setApplicationData(applicationData);
+        setTitleList(Object.keys(applicationData?.applications[0]));
       }
     };
     fetchData();
-  }, [isLoggedin, currentPageNumber]);
+  }, [isLoggedin, currentPart, currentPageNumber]);
 
   return (
     <div>
@@ -58,6 +59,7 @@ const Main = () => {
         <Button
           onClick={() => {
             setCurrentPart('web');
+            setcurrentPageNumber(1);
           }}
           $part="web"
           $curpart={currentPart}
@@ -67,6 +69,7 @@ const Main = () => {
         <Button
           onClick={() => {
             setCurrentPart('server');
+            setcurrentPageNumber(1);
           }}
           $part="server"
           $curpart={currentPart}
@@ -81,6 +84,7 @@ const Main = () => {
               // eslint-disable-next-line react/jsx-key
               <th>{t}</th>
             ))}
+            <th>자기소개서</th>
           </Title>
           <>
             {applicationData?.applications?.map((application) => (
@@ -92,11 +96,23 @@ const Main = () => {
                   <Content>{application.phoneNumber}</Content>
                   <Content>{application.part}</Content>
                   <Content>{application.major}</Content>
-                  <Content>{application.createdAt.slice(0, 10)}</Content>
                   <Content>
-                    <Link href={application.link} target="_blank">
+                    {`${application.createdAt.slice(2, 10)}\n(${application.createdAt.slice(11, 19)})`}
+                  </Content>
+                  <Content>
+                    <Link
+                      href={application.link}
+                      target={currentPart === 'web' ? '_self' : '_blank'}
+                    >
                       {application.link}
                     </Link>
+                  </Content>
+                  <Content>
+                    <GoApplicationBtn
+                      onClick={() => navigate(`/${application.studentId}`)}
+                    >
+                      보기
+                    </GoApplicationBtn>
                   </Content>
                 </Application>
               </>
@@ -104,7 +120,7 @@ const Main = () => {
           </>
         </ContentContainer>
       )}
-      <PageNumberBox>{renderButtons(applicationData.totalPage)}</PageNumberBox>
+      <PageNumberBox>{renderButtons(applicationData?.totalPage)}</PageNumberBox>
     </div>
   );
 };
@@ -112,7 +128,10 @@ const Main = () => {
 const ContentContainer = styled.table`
   width: 100%;
 `;
-const ButtonBox = styled.div``;
+const ButtonBox = styled.div`
+  display: flex;
+  justify-content: end;
+`;
 const Button = styled.button`
   margin: 20px 10px;
   padding: 20px;
@@ -133,15 +152,29 @@ const Application = styled.tr`
   border: 3px solid #ffffff;
 `;
 const Id = styled.td`
-  font-size: 10px;
+  font-size: 11px;
 `;
-const Content = styled.td``;
+const Content = styled.td`
+  white-space: pre;
+  text-align: center;
+`;
+const GoApplicationBtn = styled.button`
+  background-color: #ffeef1;
+  font-weight: bold;
+  color: #ff798d;
+  border: 1px solid #ff798d;
+  border-radius: 8px;
+  cursor: pointer;
+`;
 const Link = styled.a`
   color: #ff798d;
+  font-size: 11px;
+  text-align: start;
   text-underline-position: under;
   text-decoration-thickness: 1px;
 `;
 const PageNumberBox = styled.div`
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   gap: 20px;
