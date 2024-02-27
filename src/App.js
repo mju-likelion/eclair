@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Main from './pages/Main';
 import LogIn from './pages/LogIn';
-import ApplicationView from './pages/ApplicationView';
+import Introduction from './pages/Introduction';
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/login" element={<LogIn />} />
-        <Route path="/:studentId" element={<ApplicationView />} />
+        <Route path="/introduces" element={<Introduction />} />
       </Routes>
     </BrowserRouter>
   );
