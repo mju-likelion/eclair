@@ -1,14 +1,12 @@
 import { Axios } from './Axios';
 
-export const getApplication = async () => {
+export const getApplication = async (part, pageNum) => {
   try {
-    const part = 'web';
-    const pageNum = 1;
     const response = await Axios.get(
       `/applications?part=${part}&pageNum=${pageNum}`,
     );
     console.log(response);
-    return response;
+    return response.data.data;
   } catch (error) {
     console.log(error);
   }

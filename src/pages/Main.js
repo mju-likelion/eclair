@@ -5,11 +5,30 @@ import MAIN_DUMMY from '../MainDummy.json';
 import styled from 'styled-components';
 
 const Main = () => {
+  const [applicationData, setApplicationData] = useState(false);
   const [isLoggedin, setIsLoggedin] = useState(false);
   const [currentPart, setCurrentPart] = useState('web');
+  const [currentPageNumber, setcurrentPageNumber] = useState(1);
 
   const data = MAIN_DUMMY.applications;
   const titleList = Object.keys(data[0]);
+
+  function renderButtons(totalPageNumber) {
+    const buttons = [];
+    for (let i = 0; i < totalPageNumber; i++) {
+      buttons.push(
+        <PageButton
+          key={i}
+          $pageNumber={i + 1}
+          $currentPageNumber={currentPageNumber}
+          onClick={() => setcurrentPageNumber(i + 1)}
+        >
+          Button {i + 1}
+        </PageButton>,
+      );
+    }
+    return buttons;
+  }
 
   useEffect(() => {
     const login = async () => {
@@ -21,14 +40,17 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    console.log(isLoggedin);
     const fetchData = async () => {
       if (isLoggedin) {
-        const applicationData = await getApplication();
+        const applicationData = await getApplication(
+          currentPart,
+          currentPageNumber,
+        );
+        setApplicationData(applicationData);
       }
     };
     fetchData();
-  }, [isLoggedin]);
+  }, [isLoggedin, currentPageNumber]);
 
   return (
     <div>
@@ -52,7 +74,7 @@ const Main = () => {
           Server
         </Button>
       </ButtonBox>
-      {data && (
+      {applicationData && (
         <ContentContainer border="1">
           <Title>
             {titleList.map((t) => (
@@ -61,7 +83,7 @@ const Main = () => {
             ))}
           </Title>
           <>
-            {data?.map((application) => (
+            {applicationData?.applications?.map((application) => (
               <>
                 <Application key={application.id}>
                   <Id>{application.id}</Id>
@@ -82,9 +104,7 @@ const Main = () => {
           </>
         </ContentContainer>
       )}
-      <PageNumber>
-        <Page></Page>
-      </PageNumber>
+      <PageNumberBox>{renderButtons(applicationData.totalPage)}</PageNumberBox>
     </div>
   );
 };
@@ -121,6 +141,21 @@ const Link = styled.a`
   text-underline-position: under;
   text-decoration-thickness: 1px;
 `;
-const PageNumber = styled.div``;
-const Page = styled.div``;
+const PageNumberBox = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+`;
+const PageButton = styled.button`
+  background-color: ${({ $pageNumber, $currentPageNumber }) =>
+    $pageNumber === $currentPageNumber ? 'pink' : 'white'};
+  padding: 10px;
+  border: 1px solid
+    ${({ $pageNumber, $currentPageNumber }) =>
+      $pageNumber === $currentPageNumber ? 'white' : 'pink'};
+  color: ${({ $pageNumber, $currentPageNumber }) =>
+    $pageNumber === $currentPageNumber ? 'white' : 'pink'};
+  border-radius: 8px;
+  cursor: pointer;
+`;
 export default Main;
