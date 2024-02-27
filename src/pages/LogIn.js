@@ -21,7 +21,7 @@ const LogIn = () => {
       console.log(statusCode);
       if (statusCode === '200') {
         console.log(statusCode);
-        navigate('/main');
+        navigate('/');
       }
     } catch (error) {
       alert('오류발생');
