@@ -32,7 +32,7 @@ const LogIn = () => {
 
   return (
     <Container>
-      <form onSubmit={handleFormSubmit}>
+      <Form onSubmit={handleFormSubmit}>
         로그인
         <IdInput
           value={managerId}
@@ -43,7 +43,7 @@ const LogIn = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <button type="submit">로그인</button>
-      </form>
+      </Form>
     </Container>
   );
 };
@@ -53,6 +53,12 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 `;
 
 const IdInput = styled.input`
