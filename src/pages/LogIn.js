@@ -33,7 +33,7 @@ const LogIn = () => {
   return (
     <Container>
       <Form onSubmit={handleFormSubmit}>
-        로그인
+        <SubTitle>로그인</SubTitle>
         <IdInput
           value={managerId}
           onChange={(e) => setManagerId(e.target.value)}
@@ -42,7 +42,7 @@ const LogIn = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button type="submit">로그인</button>
+        <LoginButton type="submit">로그인</LoginButton>
       </Form>
     </Container>
   );
@@ -53,24 +53,48 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: #161515;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
+  align-items: center;
+`;
+
+const SubTitle = styled.div`
+  display: flex;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
 `;
 
 const IdInput = styled.input`
   display: block;
   border: 1px solid #db627b;
   border-radius: 8px;
+  width: 200px;
+  height: 30px;
+  background-color: transparent;
+  color: white;
 `;
 
 const PasswordInput = styled.input`
   display: block;
   border: 1px solid #db627b;
   border-radius: 8px;
+  width: 200px;
+  height: 30px;
+  background-color: transparent;
+  color: white;
+`;
+
+const LoginButton = styled.button`
+  margin-top: 30px;
+  border-radius: 8px;
+  width: 100px;
+  height: 30px;
 `;
 
 export default LogIn;
