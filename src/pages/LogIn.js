@@ -31,20 +31,29 @@ const LogIn = () => {
   };
 
   return (
-    <form onSubmit={handleFormSubmit}>
-      로그인
-      <IdInput
-        value={managerId}
-        onChange={(e) => setManagerId(e.target.value)}
-      />
-      <PasswordInput
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">로그인</button>
-    </form>
+    <Container>
+      <form onSubmit={handleFormSubmit}>
+        로그인
+        <IdInput
+          value={managerId}
+          onChange={(e) => setManagerId(e.target.value)}
+        />
+        <PasswordInput
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit">로그인</button>
+      </form>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
 
 const IdInput = styled.input`
   display: block;
