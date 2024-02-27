@@ -1,4 +1,4 @@
-import { Axios } from 'axios';
+import { Axios } from '../api/Axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,20 +8,24 @@ const LogIn = () => {
   const [password, setPassword] = useState('');
 
   const handleFormSubmit = async (event) => {
+    event.preventDefault();
     console.log({ managerId, password });
     try {
       const response = await Axios.post('/auth/login', {
         managerId: managerId,
         password: password,
       });
-      console.log(event);
+
+      console.log(response);
       const statusCode = response.data.statusCode;
+      console.log(statusCode);
       if (statusCode === '200') {
+        console.log(statusCode);
         navigate('/main');
-        console.log('/main');
       }
     } catch (error) {
       alert('오류발생');
+      console.log(error);
     }
   };
 
