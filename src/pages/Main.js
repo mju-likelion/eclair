@@ -1,18 +1,35 @@
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
+import { Axios } from '../api/Axios';
 import { useNavigate } from 'react-router-dom';
-import { postLogin } from '../api/postLogin';
+import { Cookies } from 'react-cookie';
+import { useEffect, useState } from 'react';
 import { getApplication } from '../api/getApplication';
 
-const Main = () => {
+// 인스턴스 재생산을 방지하여 효율성을 높임
+const cookies = new Cookies();
+
+const Main = ({ isLoggedin, setIsLoggedin }) => {
   const navigate = useNavigate();
 
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
-  const [isLoggedin, setIsLoggedin] = useState(false);
   const [currentPart, setCurrentPart] = useState('web');
   const [currentPageNumber, setcurrentPageNumber] = useState(1);
 
+  const onClick = async () => {
+    try {
+      const response = await Axios.post('/auth/logout');
+      const statusCode = response.data.statusCode;
+
+      if (statusCode === '200') {
+        setIsLoggedin(false);
+        alert('로그아웃 됐습니다');
+        navigate('/login');
+      }
+    } catch {
+      alert('로그아웃 실패');
+    }
+  };
   function renderButtons(totalPageNumber) {
     const buttons = [];
     for (let i = 0; i < totalPageNumber; i++) {
@@ -31,16 +48,9 @@ const Main = () => {
   }
 
   useEffect(() => {
-    const login = async () => {
-      const loginStatusCode = await postLogin();
-      console.log(loginStatusCode);
-      setIsLoggedin(loginStatusCode === '200');
-    };
-    login();
-  }, []);
-
-  useEffect(() => {
     const fetchData = async () => {
+      console.log('실행됨');
+      console.log(isLoggedin);
       if (isLoggedin) {
         const applicationData = await getApplication(
           currentPart,
@@ -55,6 +65,13 @@ const Main = () => {
 
   return (
     <div>
+      <LogoutButton
+        onClick={() => {
+          onClick();
+        }}
+      >
+        로그아웃
+      </LogoutButton>
       <ButtonBox>
         <Button
           onClick={() => {
@@ -191,4 +208,8 @@ const PageButton = styled.button`
   border-radius: 8px;
   cursor: pointer;
 `;
+const LogoutButton = styled.button`
+  border-radius: 8px;
+`;
+
 export default Main;
