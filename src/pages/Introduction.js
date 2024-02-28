@@ -6,18 +6,21 @@ import { useSearchParams } from 'react-router-dom';
 const Introduction = () => {
   const [searchParams] = useSearchParams();
   const [introducesData, setIntroducesData] = useState({});
-  const studentIdParams = searchParams.get('studentId');
+  const applicationIdParams = searchParams.get('applicationId');
 
   useEffect(() => {
-    getIntroductionData(studentIdParams, setIntroducesData);
+    getIntroductionData(applicationIdParams, setIntroducesData);
   }, []);
+  console.log(introducesData);
 
-  const { part, introduceDetailVOList } = introducesData;
+  const { studentId, name, part, introduceDetailVOList } = introducesData;
 
   return (
     <AllContainer>
       <TitleContainer>
-        <Title>{studentIdParams} 김대현 자기소개서</Title>
+        <Title>
+          {studentId} {name} 자기소개서
+        </Title>
         <Part>파트: {part}</Part>
       </TitleContainer>
       <NewContainer>
