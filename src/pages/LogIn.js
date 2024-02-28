@@ -12,14 +12,10 @@ const LogIn = () => {
     event.preventDefault();
 
     try {
-      const response = await Axios.post(
-        '/auth/login',
-        {
-          managerId: managerId,
-          password: password,
-        },
-        { withCredentials: true },
-      );
+      const response = await Axios.post('/auth/login', {
+        managerId: managerId,
+        password: password,
+      });
 
       const statusCode = response.data.statusCode;
 
