@@ -1,18 +1,15 @@
 import styled from 'styled-components';
 import { Axios } from '../api/Axios';
 import { useNavigate } from 'react-router-dom';
-import { Cookies } from 'react-cookie';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getApplication } from '../api/getApplication';
 
-// 인스턴스 재생산을 방지하여 효율성을 높임
-const cookies = new Cookies();
-
-const Main = ({ isLoggedin, setIsLoggedin }) => {
+const Main = ({ setIsLoggedin }) => {
   const navigate = useNavigate();
 
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
+  const [onlyPass, setOnlyPass] = useState(false);
   const [currentPart, setCurrentPart] = useState('web');
   const [currentPageNumber, setcurrentPageNumber] = useState(1);
 
@@ -49,19 +46,16 @@ const Main = ({ isLoggedin, setIsLoggedin }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log('실행됨');
-      console.log(isLoggedin);
-      if (isLoggedin) {
-        const applicationData = await getApplication(
-          currentPart,
-          currentPageNumber,
-        );
-        setApplicationData(applicationData);
-        setTitleList(Object.keys(applicationData?.applications[0]));
-      }
+      const applicationData = await getApplication(
+        currentPart,
+        currentPageNumber,
+        onlyPass,
+      );
+      setApplicationData(applicationData);
+      setTitleList(Object.keys(applicationData?.applications[0]));
     };
     fetchData();
-  }, [isLoggedin, currentPart, currentPageNumber]);
+  }, [onlyPass, currentPart, currentPageNumber]);
 
   return (
     <div>
@@ -73,6 +67,15 @@ const Main = ({ isLoggedin, setIsLoggedin }) => {
         로그아웃
       </LogoutButton>
       <ButtonBox>
+        <PassButton
+          $onlyPass={onlyPass}
+          onClick={() => {
+            setOnlyPass((prev) => !prev);
+            setcurrentPageNumber(1);
+          }}
+        >
+          {onlyPass ? '합격자 지원서' : '전체 지원서'}
+        </PassButton>
         <Button
           onClick={() => {
             setCurrentPart('web');
@@ -96,7 +99,7 @@ const Main = ({ isLoggedin, setIsLoggedin }) => {
       </ButtonBox>
       {applicationData && (
         <ContentContainer border="1">
-          <Title>
+          <Title $onlyPass={onlyPass}>
             {titleList.map((t) => (
               // eslint-disable-next-line react/jsx-key
               <th>{t}</th>
@@ -121,12 +124,16 @@ const Main = ({ isLoggedin, setIsLoggedin }) => {
                       href={application.link}
                       target={currentPart === 'web' ? '_self' : '_blank'}
                     >
-                      {application.link}
+                      {currentPart === 'web' ? '과제 링크' : '깃허브 링크'}
                     </Link>
                   </Content>
+                  <Result $isPassed={application.isPass}>
+                    {String(application.isPass)}
+                  </Result>
                   <Content>
                     <GoApplicationBtn
-                      onClick={() => navigate(`/${application.studentId}`)}
+                      href={application.studentId}
+                      target="_blank"
                     >
                       보기
                     </GoApplicationBtn>
@@ -148,45 +155,57 @@ const ContentContainer = styled.table`
 const ButtonBox = styled.div`
   display: flex;
   justify-content: end;
+  & > button {
+    margin: 20px 10px;
+    padding: 20px;
+    font-size: 24px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+`;
+const PassButton = styled.button`
+  background-color: ${({ $onlyPass }) => ($onlyPass ? '#aedec4' : 'pink')};
+  color: ${({ $onlyPass }) => ($onlyPass === $onlyPass ? 'white' : '#8f8f8f')};
+  font-weight: ${({ $onlyPass }) => ($onlyPass ? 'bold' : 500)};
 `;
 const Button = styled.button`
-  margin: 20px 10px;
-  padding: 20px;
-  font-size: 24px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
   background-color: ${({ $part, $curpart }) =>
     $curpart === $part ? 'pink' : '#808080'};
-  color: ${({ $part, $curpart }) => ($curpart === $part ? 'white' : '#575757')};
+  color: ${({ $part, $curpart }) => ($curpart === $part ? 'white' : '#8f8f8f')};
   font-weight: ${({ $part, $curpart }) => $curpart === $part && 'bold'};
-  cursor: pointer;
 `;
 const Title = styled.tr`
   justify-content: space-around;
-  background-color: pink;
+  background-color: ${({ $onlyPass }) => ($onlyPass ? '#aedec4' : 'pink')};
 `;
 const Application = styled.tr`
   border: 3px solid #ffffff;
+  text-align: center;
 `;
 const Id = styled.td`
   font-size: 11px;
 `;
 const Content = styled.td`
   white-space: pre;
-  text-align: center;
 `;
-const GoApplicationBtn = styled.button`
-  background-color: #ffeef1;
+const Result = styled.td`
   font-weight: bold;
+  color: ${({ $isPassed }) => ($isPassed ? '#aedec4' : 'pink')}};
+`;
+const GoApplicationBtn = styled.a`
+  padding: 4px 8px;
+  background-color: #ffeef1;
   color: #ff798d;
+  font-weight: bold;
   border: 1px solid #ff798d;
   border-radius: 8px;
+  text-decoration: none;
   cursor: pointer;
 `;
 const Link = styled.a`
   color: #ff798d;
   font-size: 11px;
-  text-align: start;
   text-underline-position: under;
   text-decoration-thickness: 1px;
 `;
