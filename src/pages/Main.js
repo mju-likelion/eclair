@@ -1,14 +1,10 @@
 import styled from 'styled-components';
 import { Axios } from '../api/Axios';
 import { useNavigate } from 'react-router-dom';
-import { Cookies } from 'react-cookie';
 import { useEffect, useState } from 'react';
 import { getApplication } from '../api/getApplication';
 
-// 인스턴스 재생산을 방지하여 효율성을 높임
-const cookies = new Cookies();
-
-const Main = ({ isLoggedin, setIsLoggedin }) => {
+const Main = ({ setIsLoggedin }) => {
   const navigate = useNavigate();
 
   const [applicationData, setApplicationData] = useState([]);
@@ -49,19 +45,15 @@ const Main = ({ isLoggedin, setIsLoggedin }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log('실행됨');
-      console.log(isLoggedin);
-      if (isLoggedin) {
-        const applicationData = await getApplication(
-          currentPart,
-          currentPageNumber,
-        );
-        setApplicationData(applicationData);
-        setTitleList(Object.keys(applicationData?.applications[0]));
-      }
+      const applicationData = await getApplication(
+        currentPart,
+        currentPageNumber,
+      );
+      setApplicationData(applicationData);
+      setTitleList(Object.keys(applicationData?.applications[0]));
     };
     fetchData();
-  }, [isLoggedin, currentPart, currentPageNumber]);
+  }, [currentPart, currentPageNumber]);
 
   return (
     <div>
