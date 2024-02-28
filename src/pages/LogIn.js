@@ -3,7 +3,7 @@ import { Axios } from '../api/Axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const LogIn = () => {
+const LogIn = ({ setIsLoggedin }) => {
   const navigate = useNavigate();
   const [managerId, setManagerId] = useState('');
   const [password, setPassword] = useState('');
@@ -20,10 +20,12 @@ const LogIn = () => {
       const statusCode = response.data.statusCode;
 
       if (statusCode === '200') {
+        setIsLoggedin(true);
         console.log(statusCode);
         navigate('/');
       }
     } catch (error) {
+      setIsLoggedin(false);
       alert('오류발생');
       console.log(error);
     }
