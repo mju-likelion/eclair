@@ -132,7 +132,7 @@ const Main = ({ setIsLoggedin }) => {
                   </Result>
                   <Content>
                     <GoApplicationBtn
-                      href={application.studentId}
+                      href={`introduces?applicationId=${application.id}`}
                       target="_blank"
                     >
                       보기
