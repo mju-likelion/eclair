@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Main from './pages/Main';
 import LogIn from './pages/LogIn';
-import ApplicationView from './pages/ApplicationView';
+import Introduction from './pages/Introduction';
 import { useState } from 'react';
 
 function App() {
@@ -9,6 +9,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/introduces" element={<Introduction />} />
         <Route
           path="/"
           element={
@@ -19,7 +20,6 @@ function App() {
           path="/login"
           element={<LogIn setIsLoggedin={setIsLoggedin} />}
         />
-        <Route path="/:studentId" element={<ApplicationView />} />
       </Routes>
     </BrowserRouter>
   );
