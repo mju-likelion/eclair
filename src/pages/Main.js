@@ -12,6 +12,7 @@ const Main = ({ setIsLoggedin }) => {
   const [onlyPass, setOnlyPass] = useState(false);
   const [currentPart, setCurrentPart] = useState('web');
   const [currentPageNumber, setcurrentPageNumber] = useState(1);
+  const [isPassed, setIsPassed] = useState(Array(10).fill(undefined));
 
   const onClick = async () => {
     try {
@@ -27,6 +28,37 @@ const Main = ({ setIsLoggedin }) => {
       alert('로그아웃 실패');
     }
   };
+
+  const togglePass = (index, state) => {
+    setIsPassed((prevstate) => {
+      const newState = [...prevstate];
+      newState[index] = state;
+      return newState;
+    });
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const applicationData = await getApplication(
+        currentPart,
+        currentPageNumber,
+        onlyPass,
+      );
+      setApplicationData(applicationData);
+      setTitleList(Object.keys(applicationData?.applications[0]));
+    };
+    fetchData();
+  }, [onlyPass, currentPart, currentPageNumber]);
+
+  useEffect(() => {
+    const setIsPassValues = () => {
+      const isPassedStates =
+        applicationData?.applications?.map((app) => app.isPass) || [];
+      setIsPassed(isPassedStates);
+    };
+    setIsPassValues();
+  }, [applicationData]);
+
   function renderButtons(totalPageNumber) {
     const buttons = [];
     for (let i = 0; i < totalPageNumber; i++) {
@@ -43,19 +75,6 @@ const Main = ({ setIsLoggedin }) => {
     }
     return buttons;
   }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const applicationData = await getApplication(
-        currentPart,
-        currentPageNumber,
-        onlyPass,
-      );
-      setApplicationData(applicationData);
-      setTitleList(Object.keys(applicationData?.applications[0]));
-    };
-    fetchData();
-  }, [onlyPass, currentPart, currentPageNumber]);
 
   return (
     <div>
@@ -102,12 +121,13 @@ const Main = ({ setIsLoggedin }) => {
           <Title $onlyPass={onlyPass}>
             {titleList.map((t) => (
               // eslint-disable-next-line react/jsx-key
-              <th>{t}</th>
+              <th key={t}>{t}</th>
             ))}
             <th>자기소개서</th>
+            <th>합/불</th>
           </Title>
           <>
-            {applicationData?.applications?.map((application) => (
+            {applicationData?.applications?.map((application, index) => (
               <>
                 <Application key={application.id}>
                   <Id>{application.id}</Id>
@@ -137,6 +157,20 @@ const Main = ({ setIsLoggedin }) => {
                     >
                       보기
                     </GoApplicationBtn>
+                  </Content>
+                  <Content>
+                    <PNPButton
+                      $isPassed={isPassed[index]}
+                      onClick={() => togglePass(index, true)}
+                    >
+                      합격
+                    </PNPButton>
+                    <PNPButton
+                      $isPassed={!isPassed[index]}
+                      onClick={() => togglePass(index, false)}
+                    >
+                      불합격
+                    </PNPButton>
                   </Content>
                 </Application>
               </>
@@ -225,6 +259,13 @@ const PageButton = styled.button`
   color: ${({ $pageNumber, $currentPageNumber }) =>
     $pageNumber === $currentPageNumber ? 'white' : 'pink'};
   border-radius: 8px;
+  cursor: pointer;
+`;
+const PNPButton = styled.button`
+  width: 50%;
+  height: 40px;
+  border: 1px solid #7c7c7c;
+  background-color: ${({ $isPassed }) => ($isPassed ? 'pink' : '#ccc')};
   cursor: pointer;
 `;
 const LogoutButton = styled.button`
