@@ -6,7 +6,6 @@ export const getApplication = async (part, pageNum, onlyPass) => {
     const response = await Axios.get(
       `/applications${isPassed}?part=${part}&pageNum=${pageNum}`,
     );
-    console.log(response);
     return response.data.data;
   } catch (error) {
     console.log(error);

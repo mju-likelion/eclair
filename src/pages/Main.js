@@ -1,24 +1,25 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Axios } from '../api/Axios';
-import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApplication } from '../api/getApplication';
 
 const Main = ({ setIsLoggedin }) => {
-  const navigate = useNavigate();
-
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
-  const [onlyPass, setOnlyPass] = useState(false);
-  const [currentPart, setCurrentPart] = useState('web');
-  const [currentPageNumber, setcurrentPageNumber] = useState(1);
+  const [params] = useSearchParams();
+
+  const navigate = useNavigate();
   const [isPassed, setIsPassed] = useState(Array(10).fill(undefined));
 
-  const onClick = async () => {
+  const currentPageNumber = Number(params.get('pages')) || 1;
+  const currentPart = params.get('parts') || 'web';
+  const onlyPass = params.get('onlyPass') === 'true';
+
+  const logout = async () => {
     try {
       const response = await Axios.post('/auth/logout');
       const statusCode = response.data.statusCode;
-
       if (statusCode === '200') {
         setIsLoggedin(false);
         alert('로그아웃 됐습니다');
@@ -44,11 +45,13 @@ const Main = ({ setIsLoggedin }) => {
         currentPageNumber,
         onlyPass,
       );
-      setApplicationData(applicationData);
-      setTitleList(Object.keys(applicationData?.applications[0]));
+      if (applicationData?.applications[0]) {
+        setApplicationData(applicationData);
+        setTitleList(Object.keys(applicationData.applications[0]));
+      }
     };
     fetchData();
-  }, [onlyPass, currentPart, currentPageNumber]);
+  }, [currentPart, currentPageNumber, onlyPass]);
 
   useEffect(() => {
     const setIsPassValues = () => {
@@ -60,45 +63,57 @@ const Main = ({ setIsLoggedin }) => {
   }, [applicationData]);
 
   function renderButtons(totalPageNumber) {
-    const buttons = [];
-    for (let i = 0; i < totalPageNumber; i++) {
-      buttons.push(
-        <PageButton
-          key={i}
-          $pageNumber={i + 1}
-          $currentPageNumber={currentPageNumber}
-          onClick={() => setcurrentPageNumber(i + 1)}
-        >
-          {i + 1}
-        </PageButton>,
-      );
-    }
-    return buttons;
+    return (
+      <PageButtons>
+        {Array.from({ length: totalPageNumber }, (_, index) => (
+          <PageButton
+            $pageNumber={index + 1}
+            $currentPageNumber={currentPageNumber}
+            onClick={() =>
+              navigate(
+                `/?pages=${index + 1}&parts=${currentPart}&onlyPass=${onlyPass}`,
+              )
+            }
+            key={index}
+          >
+            {index + 1}
+          </PageButton>
+        ))}
+      </PageButtons>
+    );
   }
 
   return (
     <div>
       <LogoutButton
         onClick={() => {
-          onClick();
+          logout();
         }}
       >
         로그아웃
       </LogoutButton>
       <ButtonBox>
         <PassButton
-          $onlyPass={onlyPass}
           onClick={() => {
-            setOnlyPass((prev) => !prev);
-            setcurrentPageNumber(1);
+            navigate(`/?pages=1&parts=${currentPart}&onlyPass=true`);
           }}
+          $isPass={true}
+          $onlyPass={onlyPass}
         >
-          {onlyPass ? '합격자 지원서' : '전체 지원서'}
+          합격자 지원서
+        </PassButton>
+        <PassButton
+          onClick={() => {
+            navigate(`/?pages=1&parts=${currentPart}&onlyPass=false`);
+          }}
+          $isPass={false}
+          $onlyPass={onlyPass}
+        >
+          전체 지원서
         </PassButton>
         <Button
           onClick={() => {
-            setCurrentPart('web');
-            setcurrentPageNumber(1);
+            navigate(`/?pages=1&parts=web&onlyPass=${onlyPass}`);
           }}
           $part="web"
           $curpart={currentPart}
@@ -107,8 +122,7 @@ const Main = ({ setIsLoggedin }) => {
         </Button>
         <Button
           onClick={() => {
-            setCurrentPart('server');
-            setcurrentPageNumber(1);
+            navigate(`/?pages=1&parts=server&onlyPass=${onlyPass}`);
           }}
           $part="server"
           $curpart={currentPart}
@@ -120,7 +134,6 @@ const Main = ({ setIsLoggedin }) => {
         <ContentContainer border="1">
           <Title $onlyPass={onlyPass}>
             {titleList.map((t) => (
-              // eslint-disable-next-line react/jsx-key
               <th key={t}>{t}</th>
             ))}
             <th>자기소개서</th>
@@ -188,7 +201,7 @@ const ContentContainer = styled.table`
 `;
 const ButtonBox = styled.div`
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   & > button {
     margin: 20px 10px;
     padding: 20px;
@@ -199,9 +212,12 @@ const ButtonBox = styled.div`
   }
 `;
 const PassButton = styled.button`
-  background-color: ${({ $onlyPass }) => ($onlyPass ? '#aedec4' : 'pink')};
-  color: ${({ $onlyPass }) => ($onlyPass === $onlyPass ? 'white' : '#8f8f8f')};
-  font-weight: ${({ $onlyPass }) => ($onlyPass ? 'bold' : 500)};
+  background-color: ${({ $isPass, $onlyPass }) =>
+    $isPass === $onlyPass ? ($isPass ? '#aedec4' : 'pink') : '#ccc'};
+  color: ${({ $isPass, $onlyPass }) =>
+    $isPass === $onlyPass ? 'white' : '#8f8f8f'};
+  font-weight: ${({ $isPass, $onlyPass }) =>
+    $isPass === $onlyPass ? 'bold' : 500};
 `;
 const Button = styled.button`
   background-color: ${({ $part, $curpart }) =>
@@ -249,6 +265,7 @@ const PageNumberBox = styled.div`
   justify-content: center;
   gap: 20px;
 `;
+const PageButtons = styled.div``;
 const PageButton = styled.button`
   background-color: ${({ $pageNumber, $currentPageNumber }) =>
     $pageNumber === $currentPageNumber ? 'pink' : 'white'};
