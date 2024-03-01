@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import { Axios } from '../api/Axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApplication } from '../api/getApplication';
@@ -8,12 +7,13 @@ import { getApplication } from '../api/getApplication';
 const Main = ({ setIsLoggedin }) => {
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
-  const [onlyPass, setOnlyPass] = useState(false);
-  const [currentPart, setCurrentPart] = useState('web');
-  const [currentPageNumber, setcurrentPageNumber] = useState(1);
   const [params] = useSearchParams();
 
   const navigate = useNavigate();
+
+  const currentPageNumber = Number(params.get('pages')) || 1;
+  const currentPart = params.get('parts') || 'web';
+  const onlyPass = params.get('onlyPass') === 'true';
 
   const logout = async () => {
     try {
@@ -29,19 +29,12 @@ const Main = ({ setIsLoggedin }) => {
     }
   };
 
-  const handlePageNumber = (pageNumber) => {
-    navigate(`?pages=${pageNumber}`);
-    setcurrentPageNumber(pageNumber);
-  };
-
   useEffect(() => {
-    const source = axios.CancelToken.source();
     const fetchData = async () => {
       const applicationData = await getApplication(
         currentPart,
         currentPageNumber,
         onlyPass,
-        source.token,
       );
       if (applicationData?.applications[0]) {
         setApplicationData(applicationData);
@@ -49,15 +42,7 @@ const Main = ({ setIsLoggedin }) => {
       }
     };
     fetchData();
-
-    return () => {
-      source.cancel('parms 변경');
-    };
-  }, [onlyPass, currentPart, currentPageNumber, params]);
-
-  useEffect(() => {
-    setcurrentPageNumber(Number(params.get('pages')) || 1);
-  }, [params]);
+  }, [currentPart, currentPageNumber, onlyPass]);
 
   function renderButtons(totalPageNumber) {
     return (
@@ -66,7 +51,11 @@ const Main = ({ setIsLoggedin }) => {
           <PageButton
             $pageNumber={index + 1}
             $currentPageNumber={currentPageNumber}
-            onClick={() => handlePageNumber(index + 1)}
+            onClick={() =>
+              navigate(
+                `/?pages=${index + 1}&parts=${currentPart}&onlyPass=${onlyPass}`,
+              )
+            }
             key={index}
           >
             {index + 1}
@@ -87,18 +76,28 @@ const Main = ({ setIsLoggedin }) => {
       </LogoutButton>
       <ButtonBox>
         <PassButton
-          $onlyPass={onlyPass}
           onClick={() => {
-            setOnlyPass((prev) => !prev);
-            navigate('/?pages=1');
+            navigate(`/?pages=1&parts=${currentPart}&onlyPass=true`);
           }}
+          $isPass={true}
+          $onlyPass={onlyPass}
         >
-          {onlyPass ? '합격자 지원서' : '전체 지원서'}
+          합격자 지원서
         </PassButton>
+        <PassButton
+          onClick={() => {
+            navigate(`/?pages=1&parts=${currentPart}&onlyPass=false`);
+            console.log('전체지원서 클릭');
+          }}
+          $isPass={false}
+          $onlyPass={onlyPass}
+        >
+          전체 지원서
+        </PassButton>
+
         <Button
           onClick={() => {
-            setCurrentPart('web');
-            navigate('/?pages=1');
+            navigate(`/?pages=1&parts=web&onlyPass=${onlyPass}`);
           }}
           $part="web"
           $curpart={currentPart}
@@ -107,8 +106,7 @@ const Main = ({ setIsLoggedin }) => {
         </Button>
         <Button
           onClick={() => {
-            setCurrentPart('server');
-            navigate('/?pages=1');
+            navigate(`/?pages=1&parts=server&onlyPass=${onlyPass}`);
           }}
           $part="server"
           $curpart={currentPart}
@@ -172,7 +170,7 @@ const ContentContainer = styled.table`
 `;
 const ButtonBox = styled.div`
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   & > button {
     margin: 20px 10px;
     padding: 20px;
@@ -183,9 +181,12 @@ const ButtonBox = styled.div`
   }
 `;
 const PassButton = styled.button`
-  background-color: ${({ $onlyPass }) => ($onlyPass ? '#aedec4' : 'pink')};
-  color: ${({ $onlyPass }) => ($onlyPass === $onlyPass ? 'white' : '#8f8f8f')};
-  font-weight: ${({ $onlyPass }) => ($onlyPass ? 'bold' : 500)};
+  background-color: ${({ $isPass, $onlyPass }) =>
+    $isPass === $onlyPass ? ($isPass ? '#aedec4' : 'pink') : '#ccc'};
+  color: ${({ $isPass, $onlyPass }) =>
+    $isPass === $onlyPass ? 'white' : '#8f8f8f'};
+  font-weight: ${({ $isPass, $onlyPass }) =>
+    $isPass === $onlyPass ? 'bold' : 500};
 `;
 const Button = styled.button`
   background-color: ${({ $part, $curpart }) =>
