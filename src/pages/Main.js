@@ -3,14 +3,15 @@ import styled from 'styled-components';
 import { Axios } from '../api/Axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApplication } from '../api/getApplication';
+import { postAssessment } from '../api/postAssessment';
 
 const Main = ({ setIsLoggedin }) => {
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
-  const [params] = useSearchParams();
-
-  const navigate = useNavigate();
   const [isPassed, setIsPassed] = useState(Array(10).fill(undefined));
+
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
 
   const currentPageNumber = Number(params.get('pages')) || 1;
   const currentPart = params.get('parts') || 'web';
@@ -30,12 +31,28 @@ const Main = ({ setIsLoggedin }) => {
     }
   };
 
-  const togglePass = (index, state) => {
-    setIsPassed((prevstate) => {
-      const newState = [...prevstate];
-      newState[index] = state;
-      return newState;
-    });
+  const togglePass = async (index, newState, id) => {
+    const response = await postAssessment(newState ? 'approve' : 'reject', id);
+    if (response.status === 200) {
+      // 기존 applicationData를 복사 후 변경된 index의 isPass에 해당하는 부분을 새로운 값으로 변경한다.
+      // 변경된 application을 새로운 applicationData로 반영한다.
+      setApplicationData((prevApplicationData) => {
+        const updatedApplications = prevApplicationData.applications.map(
+          (application, appIndex) => {
+            if (appIndex === index) {
+              return { ...application, isPass: !application.isPass }; // isPass 값을 반전
+            }
+            return application;
+          },
+        );
+        return {
+          ...prevApplicationData,
+          applications: updatedApplications,
+        };
+      });
+    } else {
+      console.error('patch 실패');
+    }
   };
 
   useEffect(() => {
@@ -165,7 +182,7 @@ const Main = ({ setIsLoggedin }) => {
                   </Result>
                   <Content>
                     <GoApplicationBtn
-                      href={application.studentId}
+                      href={`/introduces?applicationId=${application.id}`}
                       target="_blank"
                     >
                       보기
@@ -174,13 +191,13 @@ const Main = ({ setIsLoggedin }) => {
                   <Content>
                     <PNPButton
                       $isPassed={isPassed[index]}
-                      onClick={() => togglePass(index, true)}
+                      onClick={() => togglePass(index, true, application.id)}
                     >
                       합격
                     </PNPButton>
                     <PNPButton
                       $isPassed={!isPassed[index]}
-                      onClick={() => togglePass(index, false)}
+                      onClick={() => togglePass(index, false, application.id)}
                     >
                       불합격
                     </PNPButton>
