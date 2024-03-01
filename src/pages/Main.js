@@ -1,23 +1,24 @@
-import styled from 'styled-components';
-import { Axios } from '../api/Axios';
-import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import axios from 'axios';
+import { Axios } from '../api/Axios';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApplication } from '../api/getApplication';
 
 const Main = ({ setIsLoggedin }) => {
-  const navigate = useNavigate();
-
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
   const [onlyPass, setOnlyPass] = useState(false);
   const [currentPart, setCurrentPart] = useState('web');
   const [currentPageNumber, setcurrentPageNumber] = useState(1);
+  const [params] = useSearchParams();
 
-  const onClick = async () => {
+  const navigate = useNavigate();
+
+  const logout = async () => {
     try {
       const response = await Axios.post('/auth/logout');
       const statusCode = response.data.statusCode;
-
       if (statusCode === '200') {
         setIsLoggedin(false);
         alert('로그아웃 됐습니다');
@@ -27,41 +28,59 @@ const Main = ({ setIsLoggedin }) => {
       alert('로그아웃 실패');
     }
   };
-  function renderButtons(totalPageNumber) {
-    const buttons = [];
-    for (let i = 0; i < totalPageNumber; i++) {
-      buttons.push(
-        <PageButton
-          key={i}
-          $pageNumber={i + 1}
-          $currentPageNumber={currentPageNumber}
-          onClick={() => setcurrentPageNumber(i + 1)}
-        >
-          {i + 1}
-        </PageButton>,
-      );
-    }
-    return buttons;
-  }
+
+  const handlePageNumber = (pageNumber) => {
+    navigate(`?pages=${pageNumber}`);
+    setcurrentPageNumber(pageNumber);
+  };
 
   useEffect(() => {
+    const source = axios.CancelToken.source();
     const fetchData = async () => {
       const applicationData = await getApplication(
         currentPart,
         currentPageNumber,
         onlyPass,
+        source.token,
       );
-      setApplicationData(applicationData);
-      setTitleList(Object.keys(applicationData?.applications[0]));
+      if (applicationData?.applications[0]) {
+        setApplicationData(applicationData);
+        setTitleList(Object.keys(applicationData.applications[0]));
+      }
     };
     fetchData();
-  }, [onlyPass, currentPart, currentPageNumber]);
+
+    return () => {
+      source.cancel('parms 변경');
+    };
+  }, [onlyPass, currentPart, currentPageNumber, params]);
+
+  useEffect(() => {
+    setcurrentPageNumber(Number(params.get('pages')) || 1);
+  }, [params]);
+
+  function renderButtons(totalPageNumber) {
+    return (
+      <PageButtons>
+        {Array.from({ length: totalPageNumber }, (_, index) => (
+          <PageButton
+            $pageNumber={index + 1}
+            $currentPageNumber={currentPageNumber}
+            onClick={() => handlePageNumber(index + 1)}
+            key={index}
+          >
+            {index + 1}
+          </PageButton>
+        ))}
+      </PageButtons>
+    );
+  }
 
   return (
     <div>
       <LogoutButton
         onClick={() => {
-          onClick();
+          logout();
         }}
       >
         로그아웃
@@ -71,7 +90,7 @@ const Main = ({ setIsLoggedin }) => {
           $onlyPass={onlyPass}
           onClick={() => {
             setOnlyPass((prev) => !prev);
-            setcurrentPageNumber(1);
+            navigate('/?pages=1');
           }}
         >
           {onlyPass ? '합격자 지원서' : '전체 지원서'}
@@ -79,7 +98,7 @@ const Main = ({ setIsLoggedin }) => {
         <Button
           onClick={() => {
             setCurrentPart('web');
-            setcurrentPageNumber(1);
+            navigate('/?pages=1');
           }}
           $part="web"
           $curpart={currentPart}
@@ -89,7 +108,7 @@ const Main = ({ setIsLoggedin }) => {
         <Button
           onClick={() => {
             setCurrentPart('server');
-            setcurrentPageNumber(1);
+            navigate('/?pages=1');
           }}
           $part="server"
           $curpart={currentPart}
@@ -101,8 +120,7 @@ const Main = ({ setIsLoggedin }) => {
         <ContentContainer border="1">
           <Title $onlyPass={onlyPass}>
             {titleList.map((t) => (
-              // eslint-disable-next-line react/jsx-key
-              <th>{t}</th>
+              <th key={t}>{t}</th>
             ))}
             <th>자기소개서</th>
           </Title>
@@ -215,6 +233,7 @@ const PageNumberBox = styled.div`
   justify-content: center;
   gap: 20px;
 `;
+const PageButtons = styled.div``;
 const PageButton = styled.button`
   background-color: ${({ $pageNumber, $currentPageNumber }) =>
     $pageNumber === $currentPageNumber ? 'pink' : 'white'};
