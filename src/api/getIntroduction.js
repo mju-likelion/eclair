@@ -8,7 +8,6 @@ export const getIntroductionData = async (
     const response = await Axios.get(
       `/introduces?applicationId=${applicationId}`,
     );
-    console.log(response);
     setIntroducesFunction(response.data.data);
   } catch (error) {
     console.log(error);

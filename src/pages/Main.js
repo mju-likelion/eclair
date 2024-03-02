@@ -3,12 +3,14 @@ import styled from 'styled-components';
 import { Axios } from '../api/Axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApplication } from '../api/getApplication';
+import { postAssessment } from '../api/postAssessment';
 
 const Main = ({ setIsLoggedin }) => {
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
-  const [params] = useSearchParams();
+  const [isPassed, setIsPassed] = useState(Array(10).fill(undefined));
 
+  const [params] = useSearchParams();
   const navigate = useNavigate();
 
   const currentPageNumber = Number(params.get('pages')) || 1;
@@ -29,6 +31,30 @@ const Main = ({ setIsLoggedin }) => {
     }
   };
 
+  const togglePass = async (index, newState, id) => {
+    const response = await postAssessment(newState ? 'approve' : 'reject', id);
+    if (response.status === 200) {
+      // 기존 applicationData를 복사 후 변경된 index의 isPass에 해당하는 부분을 새로운 값으로 변경한다.
+      // 변경된 application을 새로운 applicationData로 반영한다.
+      setApplicationData((prevApplicationData) => {
+        const updatedApplications = prevApplicationData.applications.map(
+          (application, appIndex) => {
+            if (appIndex === index) {
+              return { ...application, isPass: !application.isPass }; // isPass 값을 반전
+            }
+            return application;
+          },
+        );
+        return {
+          ...prevApplicationData,
+          applications: updatedApplications,
+        };
+      });
+    } else {
+      console.error('patch 실패');
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const applicationData = await getApplication(
@@ -43,6 +69,15 @@ const Main = ({ setIsLoggedin }) => {
     };
     fetchData();
   }, [currentPart, currentPageNumber, onlyPass]);
+
+  useEffect(() => {
+    const setIsPassValues = () => {
+      const isPassedStates =
+        applicationData?.applications?.map((app) => app.isPass) || [];
+      setIsPassed(isPassedStates);
+    };
+    setIsPassValues();
+  }, [applicationData]);
 
   function renderButtons(totalPageNumber) {
     return (
@@ -87,14 +122,12 @@ const Main = ({ setIsLoggedin }) => {
         <PassButton
           onClick={() => {
             navigate(`/?pages=1&parts=${currentPart}&onlyPass=false`);
-            console.log('전체지원서 클릭');
           }}
           $isPass={false}
           $onlyPass={onlyPass}
         >
           전체 지원서
         </PassButton>
-
         <Button
           onClick={() => {
             navigate(`/?pages=1&parts=web&onlyPass=${onlyPass}`);
@@ -121,9 +154,10 @@ const Main = ({ setIsLoggedin }) => {
               <th key={t}>{t}</th>
             ))}
             <th>자기소개서</th>
+            <th>합/불</th>
           </Title>
           <>
-            {applicationData?.applications?.map((application) => (
+            {applicationData?.applications?.map((application, index) => (
               <>
                 <Application key={application.id}>
                   <Id>{application.id}</Id>
@@ -148,11 +182,25 @@ const Main = ({ setIsLoggedin }) => {
                   </Result>
                   <Content>
                     <GoApplicationBtn
-                      href={`introduces?applicationId=${application.id}`}
+                      href={`/introduces?applicationId=${application.id}`}
                       target="_blank"
                     >
                       보기
                     </GoApplicationBtn>
+                  </Content>
+                  <Content>
+                    <PNPButton
+                      $isPassed={isPassed[index]}
+                      onClick={() => togglePass(index, true, application.id)}
+                    >
+                      합격
+                    </PNPButton>
+                    <PNPButton
+                      $isPassed={!isPassed[index]}
+                      onClick={() => togglePass(index, false, application.id)}
+                    >
+                      불합격
+                    </PNPButton>
                   </Content>
                 </Application>
               </>
@@ -245,6 +293,13 @@ const PageButton = styled.button`
   color: ${({ $pageNumber, $currentPageNumber }) =>
     $pageNumber === $currentPageNumber ? 'white' : 'pink'};
   border-radius: 8px;
+  cursor: pointer;
+`;
+const PNPButton = styled.button`
+  width: 50%;
+  height: 40px;
+  border: 1px solid #7c7c7c;
+  background-color: ${({ $isPassed }) => ($isPassed ? 'pink' : '#ccc')};
   cursor: pointer;
 `;
 const LogoutButton = styled.button`
