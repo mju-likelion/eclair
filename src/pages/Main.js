@@ -51,7 +51,7 @@ const Main = ({ setIsLoggedin }) => {
         };
       });
     } else {
-      console.error('patch 실패');
+      alert(response.data.message);
     }
   };
 
@@ -238,7 +238,7 @@ const PassButton = styled.button`
 `;
 const Button = styled.button`
   background-color: ${({ $part, $curpart }) =>
-    $curpart === $part ? 'pink' : '#808080'};
+    $curpart === $part ? 'pink' : '#ccc'};
   color: ${({ $part, $curpart }) => ($curpart === $part ? 'white' : '#8f8f8f')};
   font-weight: ${({ $part, $curpart }) => $curpart === $part && 'bold'};
 `;
@@ -271,10 +271,15 @@ const GoApplicationBtn = styled.a`
   cursor: pointer;
 `;
 const Link = styled.a`
+  margin: 4px;
+  padding: 4px 8px;
+  background-color: #ffeef1;
   color: #ff798d;
-  font-size: 11px;
-  text-underline-position: under;
-  text-decoration-thickness: 1px;
+  font-weight: bold;
+  border: 1px solid #ff798d;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
 `;
 const PageNumberBox = styled.div`
   margin-top: 20px;

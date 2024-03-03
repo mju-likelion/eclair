@@ -29,7 +29,8 @@ const Introduction = () => {
             <Question>
               {item.sequence}. {item.title}
             </Question>
-            <Answer readOnly value={item.content}></Answer>
+            <Answer readOnly value={item.content} />
+            <Length>( {item.content.length} /)</Length>
           </AnswerContainer>
         ))}
       </NewContainer>
@@ -96,6 +97,10 @@ const Answer = styled.textarea`
   &::-webkit-scrollbar-track {
     background: #d9d9d9;
   }
+`;
+const Length = styled.p`
+  text-align: end;
+  font-size: 24px;
 `;
 
 export default Introduction;
