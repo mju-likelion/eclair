@@ -24,7 +24,7 @@ const Application = ({ setIsLoggedin }) => {
       if (statusCode === '200') {
         setIsLoggedin(false);
         alert('로그아웃 됐습니다');
-        navigate('/login');
+        navigate('/');
       }
     } catch {
       alert('로그아웃 실패');
@@ -89,7 +89,7 @@ const Application = ({ setIsLoggedin }) => {
             $currentPageNumber={currentPageNumber}
             onClick={() =>
               navigate(
-                `/?pages=${index + 1}&parts=${currentPart}&onlyPass=${onlyPass}`,
+                `/applications/?pages=${index + 1}&parts=${currentPart}&onlyPass=${onlyPass}`,
               )
             }
             key={index}
@@ -113,7 +113,9 @@ const Application = ({ setIsLoggedin }) => {
       <ButtonBox>
         <PassButton
           onClick={() => {
-            navigate(`/?pages=1&parts=${currentPart}&onlyPass=true`);
+            navigate(
+              `/applications?pages=1&parts=${currentPart}&onlyPass=true`,
+            );
           }}
           $isPass={true}
           $onlyPass={onlyPass}
@@ -122,7 +124,9 @@ const Application = ({ setIsLoggedin }) => {
         </PassButton>
         <PassButton
           onClick={() => {
-            navigate(`/?pages=1&parts=${currentPart}&onlyPass=false`);
+            navigate(
+              `/applications?pages=1&parts=${currentPart}&onlyPass=false`,
+            );
           }}
           $isPass={false}
           $onlyPass={onlyPass}
@@ -131,7 +135,7 @@ const Application = ({ setIsLoggedin }) => {
         </PassButton>
         <Button
           onClick={() => {
-            navigate(`/?pages=1&parts=web&onlyPass=${onlyPass}`);
+            navigate(`/applications?pages=1&parts=web&onlyPass=${onlyPass}`);
           }}
           $part="web"
           $curpart={currentPart}
@@ -140,7 +144,7 @@ const Application = ({ setIsLoggedin }) => {
         </Button>
         <Button
           onClick={() => {
-            navigate(`/?pages=1&parts=server&onlyPass=${onlyPass}`);
+            navigate(`/applications?pages=1&parts=server&onlyPass=${onlyPass}`);
           }}
           $part="server"
           $curpart={currentPart}
