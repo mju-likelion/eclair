@@ -30,7 +30,9 @@ const Introduction = () => {
               {item.sequence}. {item.title}
             </Question>
             <Answer readOnly value={item.content} />
-            <Length>( {item.content.length} /)</Length>
+            <Length>
+              ( {item.content.length} /{item.maxLength})
+            </Length>
           </AnswerContainer>
         ))}
       </NewContainer>

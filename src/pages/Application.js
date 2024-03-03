@@ -276,10 +276,15 @@ const GoApplicationBtn = styled.a`
   cursor: pointer;
 `;
 const Link = styled.a`
+  margin: 4px;
+  padding: 4px 8px;
+  background-color: #ffeef1;
   color: #ff798d;
-  font-size: 11px;
-  text-underline-position: under;
-  text-decoration-thickness: 1px;
+  font-weight: bold;
+  border: 1px solid #ff798d;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
 `;
 const PageNumberBox = styled.div`
   margin-top: 20px;
