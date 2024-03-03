@@ -51,7 +51,7 @@ const Main = ({ setIsLoggedin }) => {
         };
       });
     } else {
-      console.error('patch 실패');
+      alert(response.data.message);
     }
   };
 

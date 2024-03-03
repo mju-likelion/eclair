@@ -7,6 +7,6 @@ export const postAssessment = async (result, id) => {
     });
     return response;
   } catch (error) {
-    console.log(error);
+    return error.response;
   }
 };
