@@ -21,8 +21,7 @@ const LogIn = ({ setIsLoggedin }) => {
 
       if (statusCode === '200') {
         setIsLoggedin(true);
-        console.log(statusCode);
-        navigate('/');
+        navigate('/applications');
       }
     } catch (error) {
       setIsLoggedin(false);
@@ -40,6 +39,7 @@ const LogIn = ({ setIsLoggedin }) => {
           onChange={(e) => setManagerId(e.target.value)}
         />
         <LoginInput
+          type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -56,21 +56,18 @@ const Container = styled.div`
   height: 100vh;
   background-color: #161515;
 `;
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 15px;
   align-items: center;
 `;
-
 const SubTitle = styled.div`
   display: flex;
   justify-content: center;
   color: white;
   font-size: 24px;
 `;
-
 const LoginInput = styled.input`
   display: block;
   border: 1px solid #db627b;
@@ -80,7 +77,6 @@ const LoginInput = styled.input`
   background-color: transparent;
   color: white;
 `;
-
 const LoginButton = styled.button`
   margin-top: 30px;
   border-radius: 8px;
