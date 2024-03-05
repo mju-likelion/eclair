@@ -172,7 +172,8 @@ const Application = ({ setIsLoggedin }) => {
                   <Content>{application.part}</Content>
                   <Content>{application.major}</Content>
                   <Content>
-                    {`${application.createdAt.slice(2, 10)}\n(${application.createdAt.slice(11, 19)})`}
+                    {application.createdAt &&
+                      `${new Date(application.createdAt).toLocaleDateString().slice(2, 10)}\n(${new Date(application.createdAt).toLocaleTimeString().slice(0, 8)})`}
                   </Content>
                   <Content>
                     <Link
