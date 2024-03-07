@@ -155,6 +155,7 @@ const Application = ({ setIsLoggedin }) => {
       {applicationData && (
         <ContentContainer border="1">
           <Title $onlyPass={onlyPass}>
+            <th>번호</th>
             {titleList.map((t) => (
               <th key={t}>{t}</th>
             ))}
@@ -165,6 +166,7 @@ const Application = ({ setIsLoggedin }) => {
             {applicationData?.applications?.map((application, index) => (
               <>
                 <App key={application.id}>
+                  <Content>{index + 1}</Content>
                   <Id>{application.id}</Id>
                   <Content>{application.name}</Content>
                   <Content>{application.studentId}</Content>
