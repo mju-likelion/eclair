@@ -4,13 +4,11 @@ import { Axios } from '../api/Axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApplication } from '../api/getApplication';
 import { postAssessment } from '../api/postAssessment';
-import { postsendMail } from '../api/sendMail';
 
 const Application = ({ setIsLoggedin }) => {
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
   const [isPassed, setIsPassed] = useState(Array(10).fill(undefined));
-  const [mailResult, setMailResult] = useState([]);
 
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -55,11 +53,6 @@ const Application = ({ setIsLoggedin }) => {
     } else {
       alert(response.data.message);
     }
-  };
-
-  const sendMail = async () => {
-    const response = await postsendMail();
-    setMailResult(response);
   };
 
   useEffect(() => {
@@ -140,9 +133,6 @@ const Application = ({ setIsLoggedin }) => {
         >
           전체 지원서
         </PassButton>
-        <SendMailButton onClick={() => sendMail()}>
-          1차 합격 메일 보내기
-        </SendMailButton>
         <Button
           onClick={() => {
             navigate(`/applications?pages=1&parts=web&onlyPass=${onlyPass}`);
@@ -227,20 +217,6 @@ const Application = ({ setIsLoggedin }) => {
         </ContentContainer>
       )}
       <PageNumberBox>{renderButtons(applicationData?.totalPage)}</PageNumberBox>
-      <MailResult>
-        <div>
-          <h2>전송 성공</h2>
-          {mailResult?.sentApplicationIds?.map((mail) => (
-            <p key={mail}>{mail}</p>
-          ))}
-        </div>
-        <div>
-          <h2>전송 실패</h2>
-          {mailResult?.failedApplicationIds?.map((mail) => (
-            <p key={mail}>{mail}</p>
-          ))}
-        </div>
-      </MailResult>
     </div>
   );
 };
