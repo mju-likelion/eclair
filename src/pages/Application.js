@@ -4,11 +4,13 @@ import { Axios } from '../api/Axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getApplication } from '../api/getApplication';
 import { postAssessment } from '../api/postAssessment';
+import { postsendMail } from '../api/sendMail';
 
 const Application = ({ setIsLoggedin }) => {
   const [applicationData, setApplicationData] = useState([]);
   const [titleList, setTitleList] = useState([]);
   const [isPassed, setIsPassed] = useState(Array(10).fill(undefined));
+  const [mailResult, setMailResult] = useState([]);
 
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -53,6 +55,11 @@ const Application = ({ setIsLoggedin }) => {
     } else {
       alert(response.data.message);
     }
+  };
+
+  const sendMail = async () => {
+    const response = await postsendMail();
+    setMailResult(response);
   };
 
   useEffect(() => {
@@ -133,6 +140,9 @@ const Application = ({ setIsLoggedin }) => {
         >
           전체 지원서
         </PassButton>
+        <SendMailButton onClick={() => sendMail()}>
+          1차 합격 메일 보내기
+        </SendMailButton>
         <Button
           onClick={() => {
             navigate(`/applications?pages=1&parts=web&onlyPass=${onlyPass}`);
@@ -217,6 +227,20 @@ const Application = ({ setIsLoggedin }) => {
         </ContentContainer>
       )}
       <PageNumberBox>{renderButtons(applicationData?.totalPage)}</PageNumberBox>
+      <MailResult>
+        <div>
+          <h2>전송 성공</h2>
+          {mailResult?.sentApplicationIds?.map((mail) => (
+            <p key={mail}>{mail}</p>
+          ))}
+        </div>
+        <div>
+          <h2>전송 실패</h2>
+          {mailResult?.failedApplicationIds?.map((mail) => (
+            <p key={mail}>{mail}</p>
+          ))}
+        </div>
+      </MailResult>
     </div>
   );
 };
@@ -243,6 +267,11 @@ const PassButton = styled.button`
     $isPass === $onlyPass ? 'white' : '#8f8f8f'};
   font-weight: ${({ $isPass, $onlyPass }) =>
     $isPass === $onlyPass ? 'bold' : 500};
+`;
+const SendMailButton = styled.button`
+  background-color: #aedec4;
+  color: white;
+  font-weight: bold;
 `;
 const Button = styled.button`
   background-color: ${({ $part, $curpart }) =>
@@ -294,6 +323,9 @@ const PageNumberBox = styled.div`
   display: flex;
   justify-content: center;
   gap: 20px;
+`;
+const MailResult = styled.div`
+  display: flex;
 `;
 const PageButtons = styled.div``;
 const PageButton = styled.button`
