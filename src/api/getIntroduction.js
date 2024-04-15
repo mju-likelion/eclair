@@ -5,9 +5,7 @@ export const getIntroductionData = async (
   setIntroducesFunction,
 ) => {
   try {
-    const response = await Axios.get(
-      `/introduces?applicationId=${applicationId}`,
-    );
+    const response = await Axios.get(`/introduces/${applicationId}`);
     setIntroducesFunction(response.data.data);
   } catch (error) {
     console.log(error);
