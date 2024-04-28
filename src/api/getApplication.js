@@ -1,10 +1,11 @@
 import { Axios } from './Axios';
 
 export const getApplication = async (part, pageNum, onlyPass, navigate) => {
-  const isPassed = onlyPass ? '/passed' : '';
+  const onlyPassed = onlyPass ? 'true' : 'false';
+
   try {
     const response = await Axios.get(
-      `/applications${isPassed}?part=${part}&pageNum=${pageNum}`,
+      `/applications?part=${part}&pageNum=${pageNum}&only-passed=${onlyPassed}`,
     );
     return response.data.data;
   } catch (error) {
