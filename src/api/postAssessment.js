@@ -1,12 +1,11 @@
 import { Axios } from './Axios';
 
-export const postAssessment = async (result, id) => {
+export const postAssessment = async (result, applicationId) => {
   try {
-    const path = result === 'approve' ? 'approve' : 'reject';
-    const url = `/applications/${path}`;
+    const isPass = result === 'approve';
 
-    const response = await Axios.patch(url, {
-      applicationId: id,
+    const response = await Axios.patch(`/applications/${applicationId}`, {
+      isPass: isPass,
     });
 
     return response;
